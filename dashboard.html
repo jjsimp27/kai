@@ -184,51 +184,44 @@
             animation: fadeIn 0.8s ease;
         }
 
-        /* Auto-play overlay */
-        .auto-play-overlay {
+        .audio-controls {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            color: white;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .auto-play-content {
+            bottom: 20px;
+            right: 20px;
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            color: var(--dark);
-            max-width: 400px;
+            border-radius: 50px;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
         }
 
-        .auto-play-btn {
+        .audio-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: var(--transition);
-            margin-top: 15px;
         }
 
-        .auto-play-btn:hover {
+        .audio-btn:hover {
             background: var(--primary-dark);
             transform: scale(1.05);
         }
 
-        .hidden {
-            display: none;
+        .audio-status {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-weight: 500;
+            margin-right: 10px;
         }
 
         @keyframes fadeIn {
@@ -262,23 +255,18 @@
             .reason-text {
                 font-size: 1.1rem;
             }
+            
+            .audio-controls {
+                bottom: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Auto-play overlay -->
-    <div class="auto-play-overlay" id="autoPlayOverlay">
-        <div class="auto-play-content">
-            <h2>🎵 Music Enabled 🎵</h2>
-            <p>The background music will start playing automatically.</p>
-            <p>Click anywhere to continue...</p>
-            <button class="auto-play-btn" id="startBtn">Start Experience</button>
-        </div>
-    </div>
-
-    <!-- Hidden audio element -->
+    <!-- Hidden audio element - no controls displayed -->
     <audio id="backgroundMusic" loop>
-        <source src="https://assets.codepen.io/1468070/About+You.mp3" type="audio/mpeg">
+        <source src="About You.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
@@ -309,6 +297,17 @@
         </div>
     </div>
 
+    <!-- Audio controls -->
+    <div class="audio-controls">
+        <div class="audio-status" id="audioStatus">Music: Loading...</div>
+        <button class="audio-btn" id="playBtn">
+            <i class="fas fa-play"></i>
+        </button>
+        <button class="audio-btn" id="pauseBtn">
+            <i class="fas fa-pause"></i>
+        </button>
+    </div>
+
     <script>
         const reasons = [
             "you don't judge quickly; you always take time to understand what's really happening before you speak.",
@@ -329,13 +328,15 @@
         const counter = document.getElementById('counter');
         const timerProgress = document.getElementById('timerProgress');
         const timerText = document.getElementById('timerText');
+        const audioStatus = document.getElementById('audioStatus');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
         const backgroundMusic = document.getElementById('backgroundMusic');
-        const autoPlayOverlay = document.getElementById('autoPlayOverlay');
-        const startBtn = document.getElementById('startBtn');
 
         let currentIndex = 0;
         let timerInterval;
-        let timeLeft = 10;
+        let timeLeft = 10; // 10 seconds per reason
+        let audioStarted = false;
 
         function updateReason() {
             reasonText.classList.remove('fade-in');
@@ -347,6 +348,7 @@
                 reasonText.classList.add('fade-in');
             }, 300);
 
+            // Reset timer
             resetTimer();
         }
 
@@ -355,22 +357,26 @@
             timerProgress.style.width = '0%';
             updateTimerText();
             
+            // Clear existing interval
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
             
+            // Start new timer
             timerInterval = setInterval(() => {
                 timeLeft--;
                 updateTimerText();
                 
+                // Update progress bar
                 const progressPercentage = ((10 - timeLeft) / 10) * 100;
                 timerProgress.style.width = `${progressPercentage}%`;
                 
                 if (timeLeft <= 0) {
+                    // Move to next reason
                     if (currentIndex < reasons.length - 1) {
                         currentIndex++;
                     } else {
-                        currentIndex = 0;
+                        currentIndex = 0; // Loop back to first reason
                     }
                     updateReason();
                 }
@@ -381,57 +387,78 @@
             timerText.textContent = `Next reason in: ${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
         }
 
-        // Auto-play music with user interaction
+        // Audio functions
         function startAudio() {
-            // Configure audio
+            if (audioStarted) return;
+            
+            // Set start time to 45 seconds
             backgroundMusic.currentTime = 45;
+            
+            // Set volume to medium
             backgroundMusic.volume = 0.3;
             
-            // Play audio
+            // Try to play automatically
             const playPromise = backgroundMusic.play();
             
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log('Audio started successfully');
-                    // Hide overlay after a brief moment
-                    setTimeout(() => {
-                        autoPlayOverlay.classList.add('hidden');
-                    }, 500);
+                    // Audio started successfully
+                    audioStarted = true;
+                    audioStatus.textContent = "Music: Playing";
+                    playBtn.style.display = 'none';
+                    pauseBtn.style.display = 'flex';
                 }).catch(error => {
-                    console.log('Auto-play failed:', error);
+                    // Auto-play was prevented
+                    console.log('Autoplay was prevented');
+                    audioStatus.textContent = "Music: Click to play";
+                    playBtn.style.display = 'flex';
+                    pauseBtn.style.display = 'none';
+                    
+                    // Set up manual play button
+                    playBtn.addEventListener('click', manualPlayAudio);
                 });
             }
         }
 
-        // Initialize the dashboard
-        function initDashboard() {
-            updateReason();
-            startAudio();
+        function manualPlayAudio() {
+            backgroundMusic.play().then(() => {
+                audioStarted = true;
+                audioStatus.textContent = "Music: Playing";
+                playBtn.style.display = 'none';
+                pauseBtn.style.display = 'flex';
+            }).catch(error => {
+                console.log('Playback failed:', error);
+                audioStatus.textContent = "Music: Failed to play";
+            });
         }
 
-        // Start when user interacts with the overlay
-        startBtn.addEventListener('click', initDashboard);
-        
-        // Also start when user clicks anywhere on the overlay
-        autoPlayOverlay.addEventListener('click', initDashboard);
+        function pauseAudio() {
+            backgroundMusic.pause();
+            audioStatus.textContent = "Music: Paused";
+            playBtn.style.display = 'flex';
+            pauseBtn.style.display = 'none';
+        }
 
-        // Resume audio when page becomes visible
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && !backgroundMusic.paused) {
-                backgroundMusic.play();
+        // Initialize
+        updateReason();
+        startAudio();
+
+        // Set up button event listeners
+        playBtn.addEventListener('click', manualPlayAudio);
+        pauseBtn.addEventListener('click', pauseAudio);
+
+        // Also try to play when window gets focus (user comes back to tab)
+        window.addEventListener('focus', function() {
+            if (audioStarted && backgroundMusic.paused) {
+                backgroundMusic.play().catch(e => console.log('Playback still blocked'));
             }
         });
 
-        // Alternative: Try to auto-play after page load (might work in some browsers)
-        window.addEventListener('load', function() {
-            // Some browsers might allow this if the page is interacted with first
-            setTimeout(() => {
-                if (backgroundMusic.paused) {
-                    backgroundMusic.play().catch(e => {
-                        console.log('Direct auto-play blocked');
-                    });
-                }
-            }, 1000);
+        // Update audio status when music ends
+        backgroundMusic.addEventListener('ended', function() {
+            audioStatus.textContent = "Music: Ended";
+            playBtn.style.display = 'flex';
+            pauseBtn.style.display = 'none';
         });
     </script>
 </body>
