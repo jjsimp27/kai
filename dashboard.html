@@ -35,15 +35,7 @@
             padding: 20px;
             color: var(--dark);
         }
-        .wave-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-        }
+
         .container {
             width: 100%;
             max-width: 800px;
@@ -192,6 +184,53 @@
             animation: fadeIn 0.8s ease;
         }
 
+        /* Auto-play overlay */
+        .auto-play-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auto-play-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: var(--dark);
+            max-width: 400px;
+        }
+
+        .auto-play-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 15px;
+        }
+
+        .auto-play-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -224,23 +263,22 @@
                 font-size: 1.1rem;
             }
         }
-         @keyframes waveFlow {
-            0% {
-                transform: translateX(0) translateY(0) scaleY(1);
-            }
-            50% {
-                transform: translateX(-25%) translateY(-10px) scaleY(1.1);
-            }
-            100% {
-                transform: translateX(-50%) translateY(0) scaleY(1);
-            }
-        }
     </style>
 </head>
 <body>
+    <!-- Auto-play overlay -->
+    <div class="auto-play-overlay" id="autoPlayOverlay">
+        <div class="auto-play-content">
+            <h2>🎵 Music Enabled 🎵</h2>
+            <p>The background music will start playing automatically.</p>
+            <p>Click anywhere to continue...</p>
+            <button class="auto-play-btn" id="startBtn">Start Experience</button>
+        </div>
+    </div>
+
     <!-- Hidden audio element -->
     <audio id="backgroundMusic" loop>
-        <source src="About You.mp3" type="audio/mpeg">
+        <source src="https://assets.codepen.io/1468070/About+You.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
@@ -256,23 +294,24 @@
             </div>
             
             <div class="reason-container">
-                <div class="reason-number" id="reasonNumber" style="visibility: hidden;">1</div>
-                <div class="reason-text fade-in" id="reasonText">you don't judge quickly, you always take time to understand what's really happening before you speak.</div>
+                <div class="reason-number" id="reasonNumber">1</div>
+                <div class="reason-text fade-in" id="reasonText">you don't judge quickly; you always take time to understand what's really happening before you speak.</div>
             </div>
             
-            <div class="timer-container" style="visibility: hidden;">
+            <div class="timer-container">
                 <div class="timer-bar">
-                    <div class="timer-progress" id="timerProgress" style="visibility: hidden;"></div>
+                    <div class="timer-progress" id="timerProgress"></div>
                 </div>
-                <div class="timer-text" id="timerText" style="visibility: hidden;">Next reason in: 10 seconds</div>
+                <div class="timer-text" id="timerText">Next reason in: 10 seconds</div>
             </div>
-            <div class="counter" id="counter" style="visibility: hidden;">1 of 11 reasons</div>
+            
+            <div class="counter" id="counter">1 of 11 reasons</div>
         </div>
     </div>
 
     <script>
         const reasons = [
-            "you don't judge quickly, you always take time to understand what's really happening before you speak.",
+            "you don't judge quickly; you always take time to understand what's really happening before you speak.",
             "you help me grow in many ways, even though I'm older than you and should know better.",
             "you make me feel seen and understood, like someone finally gets what's going on inside my head.",
             "we go days without talking, yet nothing changes.",
@@ -282,7 +321,7 @@
             "you defend me when I'm not around.",
             "you are honest without being mean.",
             "you always know what to say.",
-            "thank you so much for being a good friend, wifeyyy. i love you so muchhhhh:>"
+            "thank you so much for being a good friend, wifeyyy. i love you:>"
         ];
 
         const reasonText = document.getElementById('reasonText');
@@ -291,10 +330,12 @@
         const timerProgress = document.getElementById('timerProgress');
         const timerText = document.getElementById('timerText');
         const backgroundMusic = document.getElementById('backgroundMusic');
+        const autoPlayOverlay = document.getElementById('autoPlayOverlay');
+        const startBtn = document.getElementById('startBtn');
 
         let currentIndex = 0;
         let timerInterval;
-        let timeLeft = 5;
+        let timeLeft = 10;
 
         function updateReason() {
             reasonText.classList.remove('fade-in');
@@ -310,7 +351,7 @@
         }
 
         function resetTimer() {
-            timeLeft = 5;
+            timeLeft = 10;
             timerProgress.style.width = '0%';
             updateTimerText();
             
@@ -322,7 +363,7 @@
                 timeLeft--;
                 updateTimerText();
                 
-                const progressPercentage = ((5 - timeLeft) / 5) * 100;
+                const progressPercentage = ((10 - timeLeft) / 10) * 100;
                 timerProgress.style.width = `${progressPercentage}%`;
                 
                 if (timeLeft <= 0) {
@@ -340,58 +381,57 @@
             timerText.textContent = `Next reason in: ${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
         }
 
-        // Auto-play music without any user interaction
-        function autoPlayMusic() {
+        // Auto-play music with user interaction
+        function startAudio() {
             // Configure audio
             backgroundMusic.currentTime = 45;
             backgroundMusic.volume = 0.3;
             
-            // Create a silent audio context to unlock autoplay
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            const audioContext = new AudioContext();
-            
-            // Create a silent oscillator node
-            const oscillator = audioContext.createOscillator();
-            oscillator.connect(audioContext.destination);
-            oscillator.start(0);
-            oscillator.stop(0.001);
-            
-            // Try to play the background music
+            // Play audio
             const playPromise = backgroundMusic.play();
             
             if (playPromise !== undefined) {
                 playPromise.then(() => {
                     console.log('Audio started successfully');
-                }).catch(error => {
-                    console.log('Auto-play prevented, retrying...');
-                    // Retry after a short delay
+                    // Hide overlay after a brief moment
                     setTimeout(() => {
-                        backgroundMusic.play().catch(e => {
-                            console.log('Final auto-play attempt failed');
-                        });
-                    }, 1000);
+                        autoPlayOverlay.classList.add('hidden');
+                    }, 500);
+                }).catch(error => {
+                    console.log('Auto-play failed:', error);
                 });
             }
         }
 
-        // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the dashboard
+        function initDashboard() {
             updateReason();
-            autoPlayMusic();
-        });
+            startAudio();
+        }
 
-        // Resume audio when page becomes visible again
+        // Start when user interacts with the overlay
+        startBtn.addEventListener('click', initDashboard);
+        
+        // Also start when user clicks anywhere on the overlay
+        autoPlayOverlay.addEventListener('click', initDashboard);
+
+        // Resume audio when page becomes visible
         document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && backgroundMusic.paused) {
+            if (!document.hidden && !backgroundMusic.paused) {
                 backgroundMusic.play();
             }
         });
 
-        // Resume audio when window gains focus
-        window.addEventListener('focus', function() {
-            if (backgroundMusic.paused) {
-                backgroundMusic.play();
-            }
+        // Alternative: Try to auto-play after page load (might work in some browsers)
+        window.addEventListener('load', function() {
+            // Some browsers might allow this if the page is interacted with first
+            setTimeout(() => {
+                if (backgroundMusic.paused) {
+                    backgroundMusic.play().catch(e => {
+                        console.log('Direct auto-play blocked');
+                    });
+                }
+            }, 1000);
         });
     </script>
 </body>
