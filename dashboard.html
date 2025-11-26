@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friendship Appreciation Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+        .wave-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .reason-container {
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 16px;
+            background: var(--light);
+            position: relative;
+            overflow: hidden;
+            border-left: 5px solid var(--primary);
+        }
+
+        .reason-text {
+            font-size: 1.4rem;
+            color: var(--dark);
+            line-height: 1.7;
+            text-align: center;
+            padding: 10px;
+            transition: opacity 0.5s ease;
+            font-weight: 500;
+        }
+
+        .reason-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .timer-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .counter {
+            margin-top: 25px;
+            color: var(--gray);
+            font-size: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .reason-text {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .reason-text {
+                font-size: 1.1rem;
+            }
+        }
+         @keyframes waveFlow {
+            0% {
+                transform: translateX(0) translateY(0) scaleY(1);
+            }
+            50% {
+                transform: translateX(-25%) translateY(-10px) scaleY(1.1);
+            }
+            100% {
+                transform: translateX(-50%) translateY(0) scaleY(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hidden audio element -->
+    <audio id="backgroundMusic" loop>
+        <source src="About You.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <p>Things that make me grateful for our friendship</p>	
+                </div>
+                <div class="card-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+            
+            <div class="reason-container">
+                <div class="reason-number" id="reasonNumber" style="visibility: hidden;">1</div>
+                <div class="reason-text fade-in" id="reasonText">you don't judge quickly, you always take time to understand what's really happening before you speak.</div>
+            </div>
+            
+            <div class="timer-container" style="visibility: hidden;">
+                <div class="timer-bar">
+                    <div class="timer-progress" id="timerProgress" style="visibility: hidden;"></div>
+                </div>
+                <div class="timer-text" id="timerText" style="visibility: hidden;">Next reason in: 10 seconds</div>
+            </div>
+            <div class="counter" id="counter" style="visibility: hidden;">1 of 11 reasons</div>
+        </div>
+    </div>
+
+    <script>
+        const reasons = [
+            "you don't judge quickly, you always take time to understand what's really happening before you speak.",
+            "you help me grow in many ways, even though I'm older than you and should know better.",
+            "you make me feel seen and understood, like someone finally gets what's going on inside my head.",
+            "we go days without talking, yet nothing changes.",
+            "every secret feels safe with you.",
+            "you make me feel seen and understood.",
+            "you never make me feel judged.",
+            "you defend me when I'm not around.",
+            "you are honest without being mean.",
+            "you always know what to say.",
+            "thank you so much for being a good friend, wifeyyy. i love you so muchhhhh:>"
+        ];
+
+        const reasonText = document.getElementById('reasonText');
+        const reasonNumber = document.getElementById('reasonNumber');
+        const counter = document.getElementById('counter');
+        const timerProgress = document.getElementById('timerProgress');
+        const timerText = document.getElementById('timerText');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        let currentIndex = 0;
+        let timerInterval;
+        let timeLeft = 5;
+
+        function updateReason() {
+            reasonText.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                reasonText.textContent = reasons[currentIndex];
+                reasonNumber.textContent = currentIndex + 1;
+                counter.textContent = `${currentIndex + 1} of ${reasons.length} reasons`;
+                reasonText.classList.add('fade-in');
+            }, 300);
+
+            resetTimer();
+        }
+
+        function resetTimer() {
+            timeLeft = 5;
+            timerProgress.style.width = '0%';
+            updateTimerText();
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerText();
+                
+                const progressPercentage = ((5 - timeLeft) / 5) * 100;
+                timerProgress.style.width = `${progressPercentage}%`;
+                
+                if (timeLeft <= 0) {
+                    if (currentIndex < reasons.length - 1) {
+                        currentIndex++;
+                    } else {
+                        currentIndex = 0;
+                    }
+                    updateReason();
+                }
+            }, 1000);
+        }
+
+        function updateTimerText() {
+            timerText.textContent = `Next reason in: ${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
+        }
+
+        // Auto-play music without any user interaction
+        function autoPlayMusic() {
+            // Configure audio
+            backgroundMusic.currentTime = 45;
+            backgroundMusic.volume = 0.3;
+            
+            // Create a silent audio context to unlock autoplay
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const audioContext = new AudioContext();
+            
+            // Create a silent oscillator node
+            const oscillator = audioContext.createOscillator();
+            oscillator.connect(audioContext.destination);
+            oscillator.start(0);
+            oscillator.stop(0.001);
+            
+            // Try to play the background music
+            const playPromise = backgroundMusic.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Audio started successfully');
+                }).catch(error => {
+                    console.log('Auto-play prevented, retrying...');
+                    // Retry after a short delay
+                    setTimeout(() => {
+                        backgroundMusic.play().catch(e => {
+                            console.log('Final auto-play attempt failed');
+                        });
+                    }, 1000);
+                });
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateReason();
+            autoPlayMusic();
+        });
+
+        // Resume audio when page becomes visible again
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && backgroundMusic.paused) {
+                backgroundMusic.play();
+            }
+        });
+
+        // Resume audio when window gains focus
+        window.addEventListener('focus', function() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+            }
+        });
+    </script>
+</body>
+</html>

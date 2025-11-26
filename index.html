@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Wave Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wave-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.3), transparent);
+            transform-origin: center bottom;
+            opacity: 0.7;
+        }
+
+        .wave-1 {
+            animation: waveFlow 15s linear infinite;
+            height: 20%;
+            background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.4), transparent);
+        }
+
+        .wave-2 {
+            animation: waveFlow 12s linear infinite;
+            height: 30%;
+            background: linear-gradient(90deg, transparent, rgba(147, 112, 219, 0.3), transparent);
+            animation-delay: -5s;
+        }
+
+        .wave-3 {
+            animation: waveFlow 10s linear infinite;
+            height: 40%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.3), transparent);
+            animation-delay: -2s;
+        }
+
+        .wave-4 {
+            animation: waveFlow 8s linear infinite;
+            height: 50%;
+            background: linear-gradient(90deg, transparent, rgba(255, 206, 86, 0.3), transparent);
+            animation-delay: -7s;
+        }
+
+        .gradient-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0.3;
+        }
+
+        .particle:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            left: 20%;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .particle:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 70%;
+            animation: float 18s ease-in-out infinite;
+            animation-delay: -2s;
+        }
+
+        .particle:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 30%;
+            left: 80%;
+            animation: float 12s ease-in-out infinite;
+            animation-delay: -5s;
+        }
+
+        .particle:nth-child(4) {
+            width: 120px;
+            height: 120px;
+            top: 80%;
+            left: 10%;
+            animation: float 20s ease-in-out infinite;
+            animation-delay: -8s;
+        }
+
+        .particle:nth-child(5) {
+            width: 60px;
+            height: 60px;
+            top: 20%;
+            left: 40%;
+            animation: float 14s ease-in-out infinite;
+            animation-delay: -10s;
+        }
+
+        .particle:nth-child(6) {
+            width: 90px;
+            height: 90px;
+            top: 70%;
+            left: 50%;
+            animation: float 16s ease-in-out infinite;
+            animation-delay: -12s;
+        }
+
+        .auth-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(79, 172, 254, 0.2) 0%, rgba(147, 112, 219, 0.1) 30%, transparent 70%);
+            z-index: -1;
+        }
+
+        .auth-form {
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .input-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-container input {
+            width: 100%;
+            padding: 18px 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        .input-container input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .input-wave {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            z-index: 1;
+            opacity: 0;
+        }
+
+        .input-container:focus-within .input-wave {
+            animation: inputWaveFlow 1s ease-in-out;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+
+        .toggle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-toggle:hover .toggle-bg {
+            opacity: 1;
+        }
+
+        .toggle-icon {
+            width: 24px;
+            height: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .toggle-icon svg {
+            width: 100%;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .eye-closed {
+            display: none;
+        }
+
+        .password-toggle.show-password .eye-open {
+            display: none;
+        }
+
+        .password-toggle.show-password .eye-closed {
+            display: block;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group.error .input-bg {
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.2);
+        }
+
+        .gradient-button {
+            position: relative;
+            width: 100%;
+            padding: 0;
+            background: transparent;
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .gradient-button:active {
+            transform: scale(0.98);
+        }
+
+        .button-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            z-index: 1;
+        }
+
+        .button-content {
+            position: relative;
+            z-index: 2;
+            padding: 18px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-text {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .btn-loader {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .loader-wave {
+            width: 4px;
+            height: 20px;
+            background: white;
+            border-radius: 2px;
+            animation: loaderWave 1.2s ease-in-out infinite;
+        }
+
+        .loader-wave:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-wave:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .gradient-button.loading .btn-text {
+            display: none;
+        }
+
+        .gradient-button.loading .btn-loader {
+            display: flex;
+        }
+
+        .button-ripple {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        @keyframes waveFlow {
+            0% {
+                transform: translateX(0) translateY(0) scaleY(1);
+            }
+            50% {
+                transform: translateX(-25%) translateY(-10px) scaleY(1.1);
+            }
+            100% {
+                transform: translateX(-50%) translateY(0) scaleY(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(20px, -20px);
+            }
+            50% {
+                transform: translate(-10px, 10px);
+            }
+            75% {
+                transform: translate(-20px, -10px);
+            }
+        }
+
+        @keyframes inputWaveFlow {
+            0% {
+                left: -100%;
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                left: 100%;
+                opacity: 0;
+            }
+        }
+
+        @keyframes loaderWave {
+            0%, 40%, 100% {
+                transform: scaleY(0.5);
+            }
+            20% {
+                transform: scaleY(1);
+            }
+        }
+
+        @keyframes rippleAnimation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes errorWaveMove {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes waveShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop>
+        <source src="About You.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="wave-container">
+        <div class="wave wave-1"></div>
+        <div class="wave wave-2"></div>
+        <div class="wave wave-3"></div>
+        <div class="wave wave-4"></div>
+    </div>
+
+    <div class="gradient-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="card-glow"></div>
+                
+            <!-- Login Form -->
+            <div class="auth-form" id="loginForm">
+                <form class="login-form" id="loginFormElement">
+                    <div class="form-group">
+                        <div class="input-container">
+                            <div class="input-bg"></div>
+                            <input type="text" id="loginUsername" required placeholder="sino muna ako beh?">
+                            <div class="input-wave"></div>
+                        </div>
+                        <span class="error-message" id="loginUsernameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-container password-container">
+                            <div class="input-bg"></div>
+                            <input type="password" id="loginPassword" required placeholder="kelan ako nilabas ng nanay ko beh?" inputmode="numeric">
+                            <button type="button" class="password-toggle" id="loginPasswordToggle">
+                                <div class="toggle-bg"></div>
+                                <div class="toggle-icon">
+                                    <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                        <line x1="1" y1="1" x2="23" y2="23"/>
+                                    </svg>
+                                </div>
+                            </button>
+                            <div class="input-wave"></div>
+                        </div>
+                        <span class="error-message" id="loginPasswordError"></span>
+                    </div>
+
+                    <button type="submit" class="gradient-button">
+                        <div class="button-bg"></div>
+                        <div class="button-content">
+                            <span class="btn-text">login</span>
+                            <div class="btn-loader">
+                                <div class="loader-wave"></div>
+                                <div class="loader-wave"></div>
+                                <div class="loader-wave"></div>
+                            </div>
+                        </div>
+                        <div class="button-ripple"></div>
+                    </button>
+                </form>  
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USERNAME = "wifey";
+        const PIN = "041505";
+
+        class LoginForm {
+            constructor() {
+                this.form = document.getElementById('loginFormElement');
+                this.usernameInput = document.getElementById('loginUsername');
+                this.passwordInput = document.getElementById('loginPassword');
+                this.passwordToggle = document.getElementById('loginPasswordToggle');
+                this.submitButton = this.form.querySelector('.gradient-button');
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.setupPasswordToggle();
+                this.setupNumericPassword();
+            }
+            
+            bindEvents() {
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                this.usernameInput.addEventListener('blur', () => this.validateUsername());
+                this.passwordInput.addEventListener('blur', () => this.validatePassword());
+                this.usernameInput.addEventListener('input', () => this.clearError('loginUsername'));
+                this.passwordInput.addEventListener('input', () => this.clearError('loginPassword'));
+                
+                [this.usernameInput, this.passwordInput].forEach(input => {
+                    input.addEventListener('focus', (e) => this.triggerInputWave(e));
+                    input.addEventListener('blur', (e) => this.resetInputWave(e));
+                });
+            }
+            
+            setupPasswordToggle() {
+                this.passwordToggle.addEventListener('click', () => {
+                    const type = this.passwordInput.type === 'password' ? 'text' : 'password';
+                    this.passwordInput.type = type;
+                    this.passwordToggle.classList.toggle('show-password', type === 'text');
+                });
+            }
+            
+            setupNumericPassword() {
+                this.passwordInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                });
+                
+                this.passwordInput.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text');
+                    const numbers = text.replace(/[^0-9]/g, '');
+                    document.execCommand('insertText', false, numbers);
+                });
+            }
+            
+            triggerInputWave(e) {
+                const container = e.target.closest('.input-container');
+                const wave = container.querySelector('.input-wave');
+                wave.style.animation = 'none';
+                setTimeout(() => {
+                    wave.style.animation = 'inputWaveFlow 1s ease-in-out';
+                }, 10);
+                container.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.2)';
+            }
+            
+            resetInputWave(e) {
+                const container = e.target.closest('.input-container');
+                container.style.boxShadow = '';
+            }
+            
+            validateUsername() {
+                const username = this.usernameInput.value.trim();
+                if (!username) {
+                    this.showError('loginUsername', 'Username is required');
+                    return false;
+                }
+                this.clearError('loginUsername');
+                return true;
+            }
+            
+            validatePassword() {
+                const password = this.passwordInput.value;
+                if (!password) {
+                    this.showError('loginPassword', 'PIN code is required');
+                    return false;
+                }
+                if (password.length < 4) {
+                    this.showError('loginPassword', 'PIN must be at least 4 digits long');
+                    return false;
+                }
+                if (!/^\d+$/.test(password)) {
+                    this.showError('loginPassword', 'PIN must contain only numbers');
+                    return false;
+                }
+                this.clearError('loginPassword');
+                return true;
+            }
+            
+            showError(field, message) {
+                const formGroup = document.getElementById(field).closest('.form-group');
+                const errorElement = document.getElementById(`${field}Error`);
+                formGroup.classList.add('error');
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+                
+                const inputContainer = formGroup.querySelector('.input-container');
+                inputContainer.style.animation = 'waveShake 0.5s ease-in-out';
+                setTimeout(() => {
+                    inputContainer.style.animation = '';
+                }, 500);
+            }
+            
+            clearError(field) {
+                const formGroup = document.getElementById(field).closest('.form-group');
+                const errorElement = document.getElementById(`${field}Error`);
+                formGroup.classList.remove('error');
+                errorElement.classList.remove('show');
+                setTimeout(() => {
+                    errorElement.textContent = '';
+                }, 300);
+            }
+            
+            async handleSubmit(e) {
+                e.preventDefault();
+                
+                const isUsernameValid = this.validateUsername();
+                const isPasswordValid = this.validatePassword();
+                
+                if (!isUsernameValid || !isPasswordValid) {
+                    this.submitButton.style.animation = 'waveShake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        this.submitButton.style.animation = '';
+                    }, 500);
+                    return;
+                }
+                
+                this.setLoading(true);
+                
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    const username = this.usernameInput.value.trim();
+                    const password = this.passwordInput.value;
+                    
+                    if (username === USERNAME && password === PIN) {
+                        this.showWaveSuccess();
+                    } else {
+                        throw new Error('Invalid credentials');
+                    }
+                } catch (error) {
+                    this.showError('loginPassword', 'Authentication failed. Invalid username or PIN.');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            setLoading(loading) {
+                this.submitButton.classList.toggle('loading', loading);
+                this.submitButton.disabled = loading;
+            }
+            
+            showWaveSuccess() {
+                const card = document.querySelector('.auth-card');
+                const successWave = document.createElement('div');
+                successWave.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.3), transparent);
+                    animation: successCardWave 2s ease-in-out;
+                    border-radius: 24px;
+                    pointer-events: none;
+                    z-index: 5;
+                `;
+                
+                card.style.position = 'relative';
+                card.appendChild(successWave);
+                
+                this.form.style.transform = 'scale(0.95)';
+                this.form.style.opacity = '0';
+                
+                setTimeout(() => {
+                    this.form.style.display = 'none';
+                    
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        text-align: center;
+                        padding: 40px 20px;
+                        color: white;
+                    `;
+                    
+                    const icon = document.createElement('div');
+                    icon.style.cssText = `
+                        width: 60px;
+                        height: 60px;
+                        margin: 0 auto 20px;
+                        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    `;
+                    
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('viewBox', '0 0 24 24');
+                    svg.setAttribute('fill', 'none');
+                    svg.setAttribute('stroke', 'currentColor');
+                    svg.setAttribute('stroke-width', '2');
+                    svg.style.width = '30px';
+                    svg.style.height = '30px';
+                    svg.style.color = 'white';
+                    
+                    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                    polyline.setAttribute('points', '20 6 9 17 4 12');
+                    svg.appendChild(polyline);
+                    
+                    icon.appendChild(svg);
+                    
+                    const title = document.createElement('h3');
+                    title.textContent = 'hi, wifey!';
+                    title.style.marginBottom = '10px';
+                    title.style.color = 'white';
+                    
+                    const text = document.createElement('p');
+                    text.textContent = 'buti naman alam mo:>';
+                    text.style.color = 'rgba(255, 255, 255, 0.8)';
+                    
+                    successDiv.appendChild(icon);
+                    successDiv.appendChild(title);
+                    successDiv.appendChild(text);
+                    
+                    card.appendChild(successDiv);
+                    
+                }, 300);
+                
+                setTimeout(() => {
+                    successWave.remove();
+                    window.location.href = 'dashboard.html?autoplay=true';
+                }, 2000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new LoginForm();
+        });
+      
+    </script>
+</body>
+</html>
